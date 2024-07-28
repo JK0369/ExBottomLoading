@@ -31,14 +31,16 @@ class ViewController: UIViewController {
         ])
         
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        tableView.register(FooterView.self, forHeaderFooterViewReuseIdentifier: "footer")
         tableView.dataSource = self
         tableView.delegate = self
     }
     
-    private func loadMore() {
-        let curCount = dataSource.count
-        dataSource.append(contentsOf: (1+curCount...10+curCount).map(String.init))
+    private func loadMoreItem(completion: @escaping () -> ()) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            let curCount = self.dataSource.count
+            self.dataSource.append(contentsOf: (1+curCount...10+curCount).map(String.init))
+            completion()
+        }
     }
 }
 
@@ -62,15 +64,11 @@ extension ViewController: UITableViewDelegate {
         let isLastCursor = indexPath.row == dataSource.count - 1
         guard isLastCursor else { return }
         
-        let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "footer") as? FooterView
-        tableView.tableFooterView = footerView
+        tableView.tableFooterView = FooterView(frame: .init(x: 0, y: 0, width: 0, height: 72))
         
-        loadMore()
-        tableView.reloadData()
-        
-        // 테스트를 위해 delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        loadMoreItem {
             tableView.tableFooterView = nil
+            tableView.reloadData()
         }
     }
     
