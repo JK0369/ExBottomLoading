@@ -71,8 +71,4 @@ extension ViewController: UITableViewDelegate {
             tableView.reloadData()
         }
     }
-    
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        130
-    }
 }
