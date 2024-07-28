@@ -35,11 +35,16 @@ class ViewController: UIViewController {
         tableView.delegate = self
     }
     
-    private func loadMoreItem(completion: @escaping () -> ()) {
+    private func loadMoreItem(completion: @escaping ([IndexPath]) -> ()) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             let curCount = self.dataSource.count
+            let addedCount = 10
+            
             self.dataSource.append(contentsOf: (1+curCount...10+curCount).map(String.init))
-            completion()
+            let lastIndex = curCount - 1
+            let addedLastIndex = lastIndex + addedCount
+            let addedIndexPaths = (lastIndex + 1...addedLastIndex).map { IndexPath(row: $0, section: 0) }
+            completion(addedIndexPaths)
         }
     }
 }
@@ -66,9 +71,11 @@ extension ViewController: UITableViewDelegate {
         
         tableView.tableFooterView = FooterView(frame: .init(x: 0, y: 0, width: 0, height: 72))
         
-        loadMoreItem {
+        loadMoreItem { indexPaths in
+            tableView.performBatchUpdates {
+                tableView.insertRows(at: indexPaths, with: .fade)
+            }
             tableView.tableFooterView = nil
-            tableView.reloadData()
         }
     }
 }
